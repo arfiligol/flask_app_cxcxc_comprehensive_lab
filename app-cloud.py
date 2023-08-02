@@ -10,31 +10,25 @@ import os
 有時間要補上
 """
 
-
-
-# # 指定 gcs-emulator host
-# os.environ["STORAGE_EMULATOR_HOST"] = os.getenv("STORAGE_EMULATOR_HOST") # 改成從環境變數讀取，而不是寫死
-
-
-
-
 app = Flask(__name__)
 
 # 資料庫 URI 資訊
 DB_USERNAME = os.getenv("DB_USERNAME")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("DB_HOST")
-DB_SHCEMA = os.getenv("DB_SCHEMA")
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_SCHEMA}'
+DB_SCHEMA = os.getenv("DB_SCHEMA")
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_SCHEMA}'
 db = SQLAlchemy(app)
 
 class File(db.Model):
+    global DB_SCHEMA
+    __tablename__ = f"{DB_SCHEMA}"
     id = db.Column(db.Integer, primary_key=True)
     file_name = db.Column(db.String(255), index=True)
     file_url = db.Column(db.String(255))
 
 def store_file_in_gcs(file):
-    client = storage.Client(credentials=AnonymousCredentials(), project="test")
+    client = storage.Client()
     bucket = client.get_bucket(os.getenv("GCS_BUCKET_NAME")) # 這個需要改嗎？
 
     blob = bucket.blob(file.filename)
