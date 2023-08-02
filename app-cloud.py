@@ -10,6 +10,15 @@ import os
 有時間要補上
 """
 
+
+"""
+流程：
+取得檔名
+上傳檔案到 storage，回傳 檔案 url
+將檔名、檔案 url 存到 cloud sql 去
+
+"""
+
 app = Flask(__name__)
 
 # 資料庫 URI 資訊
@@ -20,6 +29,8 @@ DB_SCHEMA = os.getenv("DB_SCHEMA")
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_SCHEMA}'
 db = SQLAlchemy(app)
 
+
+# database model -> 有特別指定 table name（可件手動流程文件內的 table name）
 class File(db.Model):
     global DB_SCHEMA
     __tablename__ = f"{DB_SCHEMA}"
@@ -29,19 +40,24 @@ class File(db.Model):
 
 def store_file_in_gcs(file):
     client = storage.Client()
-    bucket = client.get_bucket(os.getenv("GCS_BUCKET_NAME")) # 這個需要改嗎？
 
+    # 取得 bucket
+    bucket = client.get_bucket(os.getenv("GCS_BUCKET_NAME")) 
+
+    # 存檔案
     blob = bucket.blob(file.filename)
     blob.upload_from_string(
         file.read(),
         content_type=file.content_type
     )
 
+    # 取 url 回傳
     url = blob.public_url
 
     return url
 
 def store_in_db(file_name, url):
+    # 存檔名、檔案 url
     file = File(file_name=file_name, file_url=url)
     db.session.add(file)
     db.session.commit()
