@@ -11,9 +11,9 @@ import os
 """
 
 
-
-# 指定 gcs-emulator host
-os.environ["STORAGE_EMULATOR_HOST"] = os.getenv("STORAGE_EMULATOR_HOST") # 改成從環境變數讀取，而不是寫死
+if (os.getenv("IS_DEVELOPMENT")):
+    # 指定 gcs-emulator host
+    os.environ["STORAGE_EMULATOR_HOST"] = os.getenv("STORAGE_EMULATOR_HOST") # 改成從環境變數讀取，而不是寫死
 
 app = Flask(__name__)
 
@@ -31,8 +31,11 @@ class File(db.Model):
     file_url = db.Column(db.String(255))
 
 def store_file_in_gcs(file):
-    client = storage.Client(credentials=AnonymousCredentials(), project="test")
-    bucket = client.get_bucket(os.getenv("GCS_BUCKET_NAME")) # 這個需要改嗎？
+    if (os.getenv("IS_DEVELOPMENT")):
+        client = storage.Client(credentials=AnonymousCredentials(), project="cxcxc-comprehensive-lab")
+    else:
+        client = storage.Client()
+    bucket = client.get_bucket(os.getenv("GCS_BUCKET_NAME"))
 
     blob = bucket.blob(file.filename)
     blob.upload_from_string(

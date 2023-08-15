@@ -16,7 +16,7 @@ os.environ["STORAGE_EMULATOR_HOST"] = os.getenv("STORAGE_EMULATOR_HOST")
 
 client = storage.Client(
     credentials=AnonymousCredentials(),
-    project="test",
+    project="cxcxc-comprehensive-lab",
 )
 
 # get bucket

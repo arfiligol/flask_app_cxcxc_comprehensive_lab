@@ -16,7 +16,6 @@ import os
 取得檔名
 上傳檔案到 storage，回傳 檔案 url
 將檔名、檔案 url 存到 cloud sql 去
-
 """
 
 app = Flask(__name__)
@@ -33,7 +32,7 @@ db = SQLAlchemy(app)
 # database model -> 有特別指定 table name（可件手動流程文件內的 table name）
 class File(db.Model):
     global DB_SCHEMA
-    __tablename__ = f"{DB_SCHEMA}"
+    __tablename__ = f"{DB_SCHEMA}" # 在這裡做指定的動作
     id = db.Column(db.Integer, primary_key=True)
     file_name = db.Column(db.String(255), index=True)
     file_url = db.Column(db.String(255))
