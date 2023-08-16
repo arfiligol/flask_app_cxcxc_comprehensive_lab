@@ -1,0 +1,88 @@
+from google.auth.credentials import AnonymousCredentials
+from google.cloud import storage
+from flask import Flask, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+
+
+# python 讀取環境變數參考文件:https://able.bio/rhett/how-to-set-and-get-environment-variables-in-python--274rgt5
+# 仍然無法讀取，使用 python-dotenv 輔助讀取
+
+# 從環境變數讀取 emulator host, port，形成 url
+if (os.getenv("IS_DEVELOPMENT")):
+    gcs_emulator_host = "{}".format(os.getenv("STORAGE_EMULATOR_HOST"))
+    print(gcs_emulator_host)
+    os.environ["STORAGE_EMULATOR_HOST"] = gcs_emulator_host
+
+
+app = Flask(__name__)
+
+# 資料庫 URI 資訊
+DB_USERNAME = os.getenv("DB_USERNAME")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_SCHEMA = os.getenv("DB_SCHEMA")
+DB_TABLENAME = os.getenv("DB_TABLENAME")
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_SCHEMA}'
+db = SQLAlchemy(app)
+
+class File(db.Model):
+    global DB_TABLENAME
+    __tablename__ = f"{DB_TABLENAME}" # 在這裡做指定的動作
+    id = db.Column(db.Integer, primary_key=True)
+    file_name = db.Column(db.String(255), index=True)
+    file_url = db.Column(db.String(255))
+
+def store_file_in_gcs(file):
+    if (os.getenv("IS_DEVELOPMENT")):
+        client = storage.Client(credentials=AnonymousCredentials(), project=os.getenv("GCP_PROJECT"))
+    else:
+        client = storage.Client(project=os.getenv("GCP_PROJECT"))
+
+    # 取得 Bucket
+    bucket = client.get_bucket(os.getenv("GCS_BUCKET_NAME"))
+
+    # 存檔案到 bucket
+    blob = bucket.blob(file.filename)
+    blob.upload_from_string(
+        file.read(),
+        content_type=file.content_type
+    )
+
+    # 取 url 回傳
+    url = blob.public_url
+
+    return url
+
+def store_in_db(file_name, url):
+    # 存檔名、Public url 到 DB
+    file = File(file_name=file_name, file_url=url)
+    db.session.add(file)
+    db.session.commit()
+
+@app.route('/', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        file = request.files['file']
+        if file:
+            file_name = file.filename
+            url = store_file_in_gcs(file)
+            store_in_db(file_name, url)
+
+            return redirect(url_for('upload_file', file_name=file_name))
+    return '''
+    <!doctype html>
+    <title>Upload new File</title>
+    <h1>Upload new File</h1>
+    <form method=post enctype=multipart/form-data>
+      <input type=file name=file>
+      <input type=submit value=Upload>
+    </form>
+    '''
+
+if __name__ == '__main__':
+    app.run(host=os.getenv("FLASK_RUN_HOST", "0.0.0.0"), port=int(os.getenv("FLASK_RUN_PORT", 8082)), debug=bool(os.getenv("FLASK_DEBUG", True)))

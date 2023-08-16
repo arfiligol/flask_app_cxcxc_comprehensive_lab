@@ -1,0 +1,55 @@
+version: "3.8"
+services:
+  code-server:
+    container_name: code-server.cxcxc.pri
+    build:
+      context: ./code-server
+      dockerfile: Dockerfile
+    environment:
+      PUID: 1000
+      PGID: 1000
+      PASSWORD: 123456
+      SUDO_PASSWORD: 123456
+      DEFAULT_WORKSPACE: /config/flask_app
+    volumes:
+      - ./flask_app:/config/flask_app
+    ports:
+      - "8080:8443"
+    networks:
+      - cxcxc-comprehensive-lab-network
+
+  db:
+    container_name: mysqldb.cxcxc.pri
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: app1-web
+    volumes:
+      - ./database/dbdata:/var/lib/mysql
+      - ./database/schema/app1-web-storage.sql:/docker-entrypoint-initdb.d/app1-web-storage.sql
+    networks:
+      - cxcxc-comprehensive-lab-network
+
+  gcs-emulator:
+    container_name: gcs-emulator.cxcxc.pri
+    image: fsouza/fake-gcs-server:1.46
+    command: ["-scheme", "http"]
+    ports:
+      - "4443:4443"
+    volumes:
+      - ./gcsdata:/data
+    networks:
+      - cxcxc-comprehensive-lab-network
+
+  adminer:
+    container_name: adminer.cxcxc.pri
+    image: adminer:4.8.1-standalone
+    ports:
+      - "8081:8080"
+    networks:
+      - cxcxc-comprehensive-lab-network
+
+networks:
+  cxcxc-comprehensive-lab-network:

@@ -1,0 +1,7 @@
+google-auth
+google-cloud-storage
+Flask
+Flask-SQLAlchemy
+Werkzeug
+pymysql
+python-dotenv
