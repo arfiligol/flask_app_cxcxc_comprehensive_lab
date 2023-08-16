@@ -1,13 +1,13 @@
-from google.auth.credentials import AnonymousCredentials
-from google.cloud import storage
-import os
 from dotenv import load_dotenv
 load_dotenv()
-
-"""
-用來創建 gcs-emulator 的 bucket，請勿實際用於雲端
-"""
-
+import os
+if (os.getenv("GOOGLE_APPLICATION_CREDENTIALS")):
+    print("Use real credential.")
+    from google.oauth2.service_account import Credentials
+else:
+    print("Use AnonymousCredential.")
+    from google.auth.credentials import AnonymousCredentials
+from google.cloud import storage
 
 
 # 指定 gcs-emulator host
@@ -18,7 +18,7 @@ if (os.getenv("STORAGE_EMULATOR_HOST")):
 print("establishing client...")
 client = storage.Client(
     credentials=AnonymousCredentials(),
-    project=os.getenv("GCP_PROJECT"),
+    project=os.getenv("GOOGLE_CLOUD_PROJECT"),
 )
 print("client established.")
 
@@ -38,7 +38,7 @@ try:
     print("Bucket '{}' deleted".format(os.getenv("GCS_BUCKET_NAME")))
 
 except Exception as err:
-    print("Error: {}".format(err.message))
+    print("Error: {}".format(err))
 
 
 
