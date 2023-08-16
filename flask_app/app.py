@@ -12,12 +12,6 @@ load_dotenv()
 # python 讀取環境變數參考文件:https://able.bio/rhett/how-to-set-and-get-environment-variables-in-python--274rgt5
 # 仍然無法讀取，使用 python-dotenv 輔助讀取
 
-# 從環境變數讀取 emulator host, port，形成 url
-if (os.getenv("IS_DEVELOPMENT")):
-    gcs_emulator_host = "{}".format(os.getenv("STORAGE_EMULATOR_HOST"))
-    print(gcs_emulator_host)
-    os.environ["STORAGE_EMULATOR_HOST"] = gcs_emulator_host
-
 
 app = Flask(__name__)
 
@@ -38,20 +32,26 @@ class File(db.Model):
     file_url = db.Column(db.String(255))
 
 def store_file_in_gcs(file):
+    print("establishing client...")
     if (os.getenv("IS_DEVELOPMENT")):
         client = storage.Client(credentials=AnonymousCredentials(), project=os.getenv("GCP_PROJECT"))
     else:
         client = storage.Client(project=os.getenv("GCP_PROJECT"))
+    print("client established.")
 
     # 取得 Bucket
+    print("getting bucket '{}'".format(os.getenv("GCS_BUCKET_NAME")))
     bucket = client.get_bucket(os.getenv("GCS_BUCKET_NAME"))
+    print("'{}' get.")
 
     # 存檔案到 bucket
+    print("Saving file to gcs...")
     blob = bucket.blob(file.filename)
     blob.upload_from_string(
         file.read(),
         content_type=file.content_type
     )
+    print("file saved.")
 
     # 取 url 回傳
     url = blob.public_url

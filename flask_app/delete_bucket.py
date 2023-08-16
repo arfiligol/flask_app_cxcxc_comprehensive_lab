@@ -11,8 +11,8 @@ load_dotenv()
 
 
 # 指定 gcs-emulator host
-gcs_emulator_host = "http://{}:{}".format(os.getenv("STORAGE_EMULATOR_HOST"), os.getenv("STORAGE_EMULATOR_PORT"))
-os.environ["STORAGE_EMULATOR_HOST"] = gcs_emulator_host
+if (os.getenv("STORAGE_EMULATOR_HOST")):
+    print("Using gcs-emulator")
 
 
 print("establishing client...")
