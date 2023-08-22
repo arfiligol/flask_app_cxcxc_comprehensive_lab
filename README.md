@@ -1,3 +1,4 @@
+# Lab 1 - Cloud Run Only
 ## Cloud Run Serivce 部屬
 ### Create Docker Image
 1. 透過 Cloud Shell Link 建置環境
@@ -31,3 +32,10 @@ docker push asia-east1-docker.pkg.dev/<PROJECT_ID>/<ARTIFACT_REGISTRY>/cloud-run
 4. 選擇地區
 5. 選擇 Unauthorized
 6. 建立
+
+# Lab 2.1 - Cloud Run with Firestore (Emulator First)
+## 設置 Firestore Emulator
+1. 運行 Firebase Emulator
+```
+firebase emulators:start --only firestore
+```
