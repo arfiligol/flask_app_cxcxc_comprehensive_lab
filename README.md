@@ -33,9 +33,55 @@ docker push asia-east1-docker.pkg.dev/<PROJECT_ID>/<ARTIFACT_REGISTRY>/cloud-run
 5. 選擇 Unauthorized
 6. 建立
 
-# Lab 2.1 - Cloud Run with Firestore (Emulator First)
-## 設置 Firestore Emulator
+# Lab 2 - Cloud Run with Firestore
+## 2-1 先嘗試 Firestore Emulator
+### 啟動 Firestore Emulator
 1. 運行 Firebase Emulator
 ```
 firebase emulators:start --only firestore
 ```
+### 運行 flask app 操作 Firestore
+1. 開 new Terminal，進入 git repo 資料夾
+```
+cd cloudshell_open/flask_app_cxcxc_comprehensive_lab/
+```
+2. 安裝必要套件 
+```
+pip3 install -r requirements.txt
+```
+3. (optional) 從 /tmp 複製 users.json 到當前資料夾
+```
+cp /tmp/users.json ./users.json
+```
+4. 執行 flask app
+```
+python3 cloud_run_with_firestore.py
+```
+5. 透過 cloud shell preview 功能閱覽，確定有回傳 users.json 內容
+
+## 2-2 部屬 Flask App 到 Cloud Run 並存取 Firestore
+### Build and Push Image
+1. 修改 .env 的內容 -> 註解掉所有環境變數
+2. 修改 Dockerfile 的內容
+```
+CMD ["python3", "cloud_run_only.py"] --> CMD ["python3", "cloud_run_with_firestore.py"]
+```
+3. Build Docker Image
+```
+docker build -t cloud-run-with-firestore-demo-<YOUR_NAME> .
+```
+4. Tag Docker Image
+```
+docker tag cloud-run-with-firestore-demo-<YOUR_NAME> asia-east1-docker.pkg.dev/<PROJECT_ID>/cloud-run-demo-<YOUR_NAME>/cloud-run-with-firestore-demo-<YOUR_NAME>:1.0.0
+```
+5. (optional) 先在 Cloud shell 設置 docker 客戶端，讓 docker 客戶端正確的認證 google cloud 服務
+```
+gcloud auth configure-docker asia-east1-docker.pkg.dev
+```
+6. Push Image
+```
+docker push asia-east1-docker.pkg.dev/<YOUR_PROJECT_ID>/cloud-run-demo-<YOUR_NAME>/cloud-run-with-firestore-demo-<YOUR_NAME>:1.0.0
+```
+
+### 部屬 Cloud Run Service
+1. 前往
