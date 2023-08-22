@@ -38,7 +38,8 @@ docker push asia-east1-docker.pkg.dev/<PROJECT_ID>/<ARTIFACT_REGISTRY>/cloud-run
 ### 啟動 Firestore Emulator
 1. 運行 Firebase Emulator
 ```
-firebase emulators:start --only firestore
+# firebase init # 如果在真‧本地，記得先做這個
+firebase emulators:start --project <YOUR_PROJECT_ID> --only firestore # 記得 .env 也要設定跟這裡同樣的 Project，否則讀寫的地方可能無法再 UI 中看到
 ```
 ### 運行 flask app 操作 Firestore
 1. 開 new Terminal，進入 git repo 資料夾
@@ -83,5 +84,18 @@ gcloud auth configure-docker asia-east1-docker.pkg.dev
 docker push asia-east1-docker.pkg.dev/<YOUR_PROJECT_ID>/cloud-run-demo-<YOUR_NAME>/cloud-run-with-firestore-demo-<YOUR_NAME>:1.0.0
 ```
 
+### 建立 Firestore database
+1. 前往 Firestore
+2. 建立 database
+3. 選【原生】
+4. 選位置
+5. 建立資料庫
+
+
 ### 部屬 Cloud Run Service
-1. 前往
+1. 前往 Cloud Run
+2. 建立新服務
+3. 選擇 Image
+4. 選地區
+5. 選 Authorization
+6. 建立
