@@ -30,7 +30,7 @@ def index():
 
     # 寫入 users.json 到 db
     for item in data:
-        db.collection("users").document(item["id"]).set(item)
+        db.collection("users").document(str(item["id"])).set(item)
 
     # 回傳寫入的資料
     return jsonify(data)
