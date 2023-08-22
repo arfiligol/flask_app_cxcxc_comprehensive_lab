@@ -9,7 +9,8 @@ cp /tmp/users.json ./users.json
 ```
 docker build -t cloud-run-demo-ili .
 ```
-4. Push Artifact Registry
+### Push to Artifact Registry
+4. 先在 Cloud shell 設置 docker 客戶端，讓 docker 客戶端正確的認證 google cloud 服務
 ```
 gcloud auth configure-docker asia-east1-docker.pkg.dev
 ```
@@ -24,3 +25,9 @@ docker push asia-east1-docker.pkg.dev/<PROJECT_ID>/<ARTIFACT_REGISTRY>/cloud-run
 ```
 
 ### 透過 Artifact Registry 部屬 Cloud Run Service
+1. 前往 Cloud Run
+2. 點即「新增服務」
+3. 選擇 push 到 Artifact Registry 的 Image
+4. 選擇地區
+5. 選擇 Unauthorized
+6. 建立
