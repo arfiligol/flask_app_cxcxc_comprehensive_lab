@@ -52,6 +52,7 @@ class Company(db.Model):
     bs = db.Column(db.String(100), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+
 # 從 users.json 讀取並寫入資料庫
 def insert_data_from_json():
     try:
