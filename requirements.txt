@@ -1,3 +1,6 @@
 flask
+pymysql
+flask-sqlalchemy
+sqlalchemy
 python-dotenv
 google-cloud-firestore
